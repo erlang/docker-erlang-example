@@ -1,0 +1,5 @@
+#!/bin/sh
+
+docker build -t build_erlang-dockerwatch --file=alpine/build/Dockerfile .
+docker run --rm --volume="$PWD/alpine/run/artifacts:/artifacts" build_erlang-dockerwatch
+docker build -t erlang-dockerwatch alpine/run/
