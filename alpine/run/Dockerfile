@@ -1,13 +1,9 @@
 FROM alpine:3.3
 
-RUN addgroup -S dockerwatch && adduser -S -g dockerwatch dockerwatch
-
+# Install the released application
 COPY artifacts/dockerwatch /dockerwatch
 
-RUN chown -R dockerwatch /dockerwatch
+# Expose relevant ports
+EXPOSE 8443
 
-USER dockerwatch
-
-EXPOSE 9898
-
-CMD ["/dockerwatch/bin/dockerwatch", "console"]
+CMD ["/dockerwatch/bin/dockerwatch", "foreground"]

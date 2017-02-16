@@ -10,16 +10,18 @@
 -behaviour(application).
 
 -export([start/2,stop/1]).
-
 %% API.
 
 start(_Type, _Args) ->
     Dispatch = cowboy_router:compile([
 	    {'_', [{"/", dockerwatch_handler, []}]}
 	]),
-    {ok, _} = cowboy:start_http(http, 100, [{port, 9898}], [
-	    {env, [{dispatch, Dispatch}]}
-	]),
+    PrivDir = code:priv_dir(dockerwatch),
+    Opts = [{port, 8443},
+            {cacertfile, filename:join(PrivDir,"ssl/dockerwatch-ca.pem")},
+            {certfile, filename:join(PrivDir,"ssl/dockerwatch-server.pem")},
+            {keyfile, filename:join(PrivDir,"ssl/dockerwatch-server.key")}],
+    {ok, _} = cowboy:start_https(https, 100, Opts, [{env, [{dispatch, Dispatch}]}]),
     dockerwatch_sup:start_link().
 
 stop(_State) ->
