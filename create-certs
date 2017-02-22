@@ -10,15 +10,13 @@ fi
 openssl genrsa -out ssl/dockerwatch-ca.key 4096
 
 ## Certificate signing request for root CA
-echo "!!! \"Common Name\" should be left blank"
-openssl req -x509 -new -nodes -key ssl/dockerwatch-ca.key -sha256 -days 1024 -out ssl/dockerwatch-ca.pem
+openssl req -x509 -new -nodes -key ssl/dockerwatch-ca.key -sha256 -days 1024 -subj "/C=SE/" -out ssl/dockerwatch-ca.pem
 
 # Create the server certificate
 openssl genrsa -out ssl/dockerwatch-server.key 4096
 
 ## Certificate signing request for server certificate
-echo "!!! \"Common Name\" has to be the name that you use to connect to the server, eg. localhost "
-openssl req -new -key ssl/dockerwatch-server.key -out ssl/dockerwatch-server.csr
+openssl req -new -key ssl/dockerwatch-server.key -subj "/C=SE/CN=localhost/" -out ssl/dockerwatch-server.csr
 
 ## Sign the server certificate using the root CA
 openssl x509 -req -in ssl/dockerwatch-server.csr -CA ssl/dockerwatch-ca.pem -CAkey ssl/dockerwatch-ca.key -CAcreateserial -out ssl/dockerwatch-server.pem -days 500 -sha256
