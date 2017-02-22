@@ -1,5 +1,5 @@
 #!/bin/sh
-
-docker build -t build_erlang-dockerwatch --file=alpine/build/Dockerfile .
-docker run --rm --volume="$PWD/alpine/run/artifacts:/artifacts" build_erlang-dockerwatch
+ 
+docker build --build-arg https_proxy=$HTTP_PROXY --build-arg http_proxy=$HTTP_PROXY --build-arg HTTP_PROXY=$HTTP_PROXY --build-arg HTTPS_PROXY=$HTTP_PROXY --build-arg NO_PROXY=$NO_PROXY --build-arg no_proxy=$NO_PROXY -t build_erlang-dockerwatch --file=alpine/build/Dockerfile .
+docker run -e http_proxy=$HTTP_PROXY -e https_proxy=$HTTP_PROXY -e HTTP_PROXY=$HTTP_PROXY -e HTTPS_PROXY=$HTTP_PROXY -e NO_PROXY=$NO_PROXY -e no_proxy=$NO_PROXY --rm --volume="$PWD/alpine/run/artifacts:/artifacts" build_erlang-dockerwatch
 docker build -t erlang-dockerwatch alpine/run/
