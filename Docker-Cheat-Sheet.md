@@ -8,6 +8,10 @@
 
     $ docker rmi $(docker images -f dangling=true -q)
 
+* Attach to running docker
+
+    $ docker exec -i -t NameOrId /bin/sh
+
 ## Core generation
 
   * `/proc/sys/core_pattern` is clearly persisted on the host. Taking note of
