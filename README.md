@@ -104,44 +104,21 @@ What happened?
 
 Generate certificates in subdirectory `ssl`.
 
-    $ mkdir ssl && cd ssl
+    $ ./create-certs
 
-### Root CA
-
-    $ openssl genrsa -out dockerwatch-ca.key 4096
-
-    $ openssl req -x509 -new -nodes -key dockerwatch-ca.key -sha256 -days 1024 -out dockerwatch-ca.pem
-
-### Server Certificate
-
-    $ openssl genrsa -out dockerwatch-server.key 4096
-
-Certificate signing request
-
-    $ openssl req -new -key dockerwatch-server.key -out dockerwatch-server.csr
-
-The most important field: `Common Name (eg, YOUR name) []: localhost`. We use localhost in this example.
-
-### Sign it
-
-    $ openssl x509 -req -in dockerwatch-server.csr -CA dockerwatch-ca.pem -CAkey dockerwatch-ca.key -CAcreateserial -out dockerwatch-server.pem -days 500 -sha256
-
-
-Once done with the certificates, change directory to the top directory of this repository.
-
-    $ cd ..
+For some more details of what this command does, wee [README-CERTS.md](README-CERTS.md)
 
 ## Running the Erlang Application
 
 We start the image in docker container by issuing the following command.
 
-    $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/dockerwatch/lib/dockerwatch-1.0.0/priv/ssl" --log-driver=syslog erlang-dockerwatch
+    $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=syslog erlang-dockerwatch
     870f979c5b4cdb7a1ba930b020043f50fa7457bf787237706fb27eefaf5fe61d
 
 Let's parse some of the input.
 
  * `-p 8443:8443`, exposes port `8443` from the container to our localhost
- * `--volume="$PWD/ssl:/dockerwatch/lib/dockerwatch-1.0.0/priv/ssl"`, mounts our local directory with certificates in
+ * `--volume="$PWD/ssl:/etc/ssl/certs"`, mounts our local directory with certificates in
    the container.
  * `--log-driver=syslog`, will log all data from stdout in the container to our local syslog.
 
@@ -166,15 +143,40 @@ Fetch container IP Address from container id:
     $ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 870f979c5b4c
     172.17.0.2
 
-Test with curl:
+Create a counter called `cnt` using https with curl:
 
-    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Accept: application/json" https://localhost:8443
-    HTTP/1.1 200 OK
+    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Content-Type: application/json" -X POST -d "" https://localhost:8443/cnt
+    HTTP/1.1 204 No Content
     server: Cowboy
-    date: Tue, 21 Feb 2017 10:57:20 GMT
-    content-length: 17
-    content-type: application/json
+    date: Wed, 22 Feb 2017 13:12:54 GMT
+    content-length: 0
+    content-type: text/html
     vary: accept
-    access-control-allow-origin: *
-    
-    {"hello":"world"}
+
+Read all counters using https with curl as json:
+
+    curl --cacert ssl/dockerwatch-ca.pem -H "Accept: application/json" https://localhost:8443
+    ["cnt"]
+
+Read the counter `cnt` using https with curl as json:
+
+    curl --cacert ssl/dockerwatch-ca.pem -H "Accept: application/json" https://localhost:8443/cnt
+    {"cnt":0}
+
+Increment the counter `cnt` using http with curl:
+
+    curl -H "Content-Type: application/json" -X POST -d '{}' http://172.17.0.2:8080/cnt
+
+Read the counter `cnt` using http with curl as text:
+
+    curl -H "Accept: text/plain" http://172.17.0.2:8080/cnt
+    1
+
+Increment the counter `cnt` by 20 using http with curl:
+
+    curl -H "Content-Type: application/json" -X POST -d '{"value":20}' http://172.17.0.2:8080/cnt
+
+Read the counter `cnt` using http with curl as text:
+
+    curl -H "Accept: text/plain" http://172.17.0.2:8080/cnt
+    21
