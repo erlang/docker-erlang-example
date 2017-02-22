@@ -112,13 +112,13 @@ For some more details of what this command does, wee [README-CERTS.md](README-CE
 
 We start the image in docker container by issuing the following command.
 
-    $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/dockerwatch/lib/dockerwatch-1.0.0/priv/ssl" --log-driver=syslog erlang-dockerwatch
+    $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=syslog erlang-dockerwatch
     870f979c5b4cdb7a1ba930b020043f50fa7457bf787237706fb27eefaf5fe61d
 
 Let's parse some of the input.
 
  * `-p 8443:8443`, exposes port `8443` from the container to our localhost
- * `--volume="$PWD/ssl:/dockerwatch/lib/dockerwatch-1.0.0/priv/ssl"`, mounts our local directory with certificates in
+ * `--volume="$PWD/ssl:/etc/ssl/certs"`, mounts our local directory with certificates in
    the container.
  * `--log-driver=syslog`, will log all data from stdout in the container to our local syslog.
 
@@ -143,9 +143,22 @@ Fetch container IP Address from container id:
     $ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 870f979c5b4c
     172.17.0.2
 
-Test with curl:
+Test https with curl:
 
     $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Accept: application/json" https://localhost:8443
+    HTTP/1.1 200 OK
+    server: Cowboy
+    date: Tue, 21 Feb 2017 10:57:20 GMT
+    content-length: 17
+    content-type: application/json
+    vary: accept
+    access-control-allow-origin: *
+    
+    {"hello":"world"}
+
+Test http with curl:
+
+    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Accept: application/json" http://172.17.0.2:8080
     HTTP/1.1 200 OK
     server: Cowboy
     date: Tue, 21 Feb 2017 10:57:20 GMT

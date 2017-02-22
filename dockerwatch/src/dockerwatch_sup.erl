@@ -20,5 +20,28 @@ start_link() ->
 %% supervisor.
 
 init([]) ->
-    Procs = [],
+    CertsDir = "/etc/ssl/certs/",
+
+    Dispatch = cowboy_router:compile([
+	    {'_', [{"/", dockerwatch_handler, []}]}
+	]),
+
+    HTTPS = ranch:child_spec(
+              cowboy_https, 100, ranch_ssl,
+              [{port, 8443},
+               {cacertfile, filename:join(CertsDir, "dockerwatch-ca.pem")},
+               {certfile, filename:join(CertsDir, "dockerwatch-server.pem")},
+               {keyfile, filename:join(CertsDir, "dockerwatch-server.key")}],
+              cowboy_protocol,
+              [{env, [{dispatch, Dispatch}]}]),
+
+    HTTP = ranch:child_spec(
+             cowboy_http, 100, ranch_tcp,
+             [{port, 8080}],
+             cowboy_protocol,
+             [{env, [{dispatch, Dispatch}]}]),
+
+
+    Procs = [HTTP, HTTPS],
+
     {ok, {{one_for_one, 10, 10}, Procs}}.
