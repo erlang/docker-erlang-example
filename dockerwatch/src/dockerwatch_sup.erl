@@ -23,7 +23,7 @@ init([]) ->
     CertsDir = "/etc/ssl/certs/",
 
     Dispatch = cowboy_router:compile([
-	    {'_', [{"/", dockerwatch_handler, []}]}
+	    {'_', [{"/[:counter_name]", dockerwatch_handler, []}]}
 	]),
 
     HTTPS = ranch:child_spec(
@@ -41,7 +41,9 @@ init([]) ->
              cowboy_protocol,
              [{env, [{dispatch, Dispatch}]}]),
 
+    Counter = {dockerwatch, {dockerwatch, start_link, []},
+               permanent, 5000, worker, [dockerwatch]},
 
-    Procs = [HTTP, HTTPS],
+    Procs = [Counter, HTTP, HTTPS],
 
     {ok, {{one_for_one, 10, 10}, Procs}}.

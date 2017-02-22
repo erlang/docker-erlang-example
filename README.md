@@ -143,28 +143,40 @@ Fetch container IP Address from container id:
     $ docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 870f979c5b4c
     172.17.0.2
 
-Test https with curl:
+Create a counter called `cnt` using https with curl:
 
-    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Accept: application/json" https://localhost:8443
-    HTTP/1.1 200 OK
+    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Content-Type: application/json" -X POST -d "" https://localhost:8443/cnt
+    HTTP/1.1 204 No Content
     server: Cowboy
-    date: Tue, 21 Feb 2017 10:57:20 GMT
-    content-length: 17
-    content-type: application/json
+    date: Wed, 22 Feb 2017 13:12:54 GMT
+    content-length: 0
+    content-type: text/html
     vary: accept
-    access-control-allow-origin: *
-    
-    {"hello":"world"}
 
-Test http with curl:
+Read all counters using https with curl as json:
 
-    $ curl --cacert ssl/dockerwatch-ca.pem -i -H "Accept: application/json" http://172.17.0.2:8080
-    HTTP/1.1 200 OK
-    server: Cowboy
-    date: Tue, 21 Feb 2017 10:57:20 GMT
-    content-length: 17
-    content-type: application/json
-    vary: accept
-    access-control-allow-origin: *
-    
-    {"hello":"world"}
+    curl --cacert ssl/dockerwatch-ca.pem -H "Accept: application/json" https://localhost:8443
+    ["cnt"]
+
+Read the counter `cnt` using https with curl as json:
+
+    curl --cacert ssl/dockerwatch-ca.pem -H "Accept: application/json" https://localhost:8443/cnt
+    {"cnt":0}
+
+Increment the counter `cnt` using http with curl:
+
+    curl -H "Content-Type: application/json" -X POST -d '{}' http://172.17.0.2:8080/cnt
+
+Read the counter `cnt` using http with curl as text:
+
+    curl -H "Accept: text/plain" http://172.17.0.2:8080/cnt
+    1
+
+Increment the counter `cnt` by 20 using http with curl:
+
+    curl -H "Content-Type: application/json" -X POST -d '{"value":20}' http://172.17.0.2:8080/cnt
+
+Read the counter `cnt` using http with curl as text:
+
+    curl -H "Accept: text/plain" http://172.17.0.2:8080/cnt
+    21
