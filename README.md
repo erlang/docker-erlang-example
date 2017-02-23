@@ -75,6 +75,45 @@ This releases our Erlang application using rebar3 and the following rebar.config
            ]}.
 ```
 
+The release is stored on our local filesystem under `alpine/run/artifacts`.
+It includes an Erlang runtime as well as our dockerwatch application and all its dependencies.
+
+    $ tree -L 3 alpine/run/artifacts/
+    alpine/run/artifacts/
+    └── dockerwatch
+        ├── bin
+        │   ├── dockerwatch
+        │   ├── dockerwatch-1.0.0
+        │   ├── install_upgrade.escript
+        │   ├── nodetool
+        │   └── start_clean.boot
+        ├── erts-8.2
+        │   ├── bin
+        │   ├── doc
+        │   ├── include
+        │   ├── lib
+        │   └── man
+        ├── lib
+        │   ├── asn1-4.0.4
+        │   ├── compiler-7.0.3
+        │   ├── cowboy-1.1.2
+        │   ├── cowlib-1.0.2
+        │   ├── crypto-3.7.2
+        │   ├── dockerwatch-1.0.0
+        │   ├── goldrush-0.1.9
+        │   ├── jsone-1.4.2
+        │   ├── kernel-5.1.1
+        │   ├── lager-3.2.4
+        │   ├── public_key-1.3
+        │   ├── ranch-1.3.2
+        │   ├── ssl-8.1
+        │   ├── stdlib-3.2
+        │   └── syntax_tools-2.1.1
+        └── releases
+            ├── 1.0.0
+            ├── RELEASES
+            └── start_erl.data
+
 #### 3. Build an image with an Erlang runtime environment and your application
 
 ```Dockerfile
