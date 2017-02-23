@@ -4,7 +4,7 @@ For simplicity use the included script to do all the steps below
 
     $ ./create-image
 
-#### 1. Build a container with an Erlang development environment
+#### 1. Build an image with an Erlang development environment
 
 ```Dockerfile
 FROM alpine:3.3
@@ -45,7 +45,6 @@ WORKDIR /buildroot
 COPY dockerwatch dockerwatch
 
 WORKDIR dockerwatch
-VOLUME /artifacts
 
 CMD rebar3 as prod release -o /artifacts
 ```
@@ -76,7 +75,7 @@ This releases our Erlang application using rebar3 and the following rebar.config
            ]}.
 ```
 
-#### 3. Build a container with an Erlang runtime enviroment and your application
+#### 3. Build an image with an Erlang runtime environment and your application
 
 ```Dockerfile
 FROM alpine:3.3
@@ -85,7 +84,8 @@ FROM alpine:3.3
 COPY artifacts/dockerwatch /dockerwatch
 
 # Expose relevant ports
-EXPOSE 9898
+EXPOSE 8080
+EXPOSE 8443
 
 CMD ["/dockerwatch/bin/dockerwatch", "foreground"]
 ```
@@ -106,7 +106,7 @@ Generate certificates in subdirectory `ssl`.
 
     $ ./create-certs
 
-For some more details of what this command does, wee [README-CERTS.md](README-CERTS.md)
+For some more details of what this command does, see [README-CERTS.md](README-CERTS.md)
 
 ## Running the Erlang Application
 
