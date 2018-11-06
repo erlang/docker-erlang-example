@@ -1,6 +1,7 @@
-FROM alpine:3.8
+FROM alpine
 
-RUN apk add --no-cache openssl-dev
+RUN apk add --no-cache openssl && \
+    apk add --no-cache ncurses-libs
 
 # Install the released application
 COPY artifacts/dockerwatch /dockerwatch
