@@ -32,14 +32,14 @@ init([]) ->
                {cacertfile, filename:join(CertsDir, "dockerwatch-ca.pem")},
                {certfile, filename:join(CertsDir, "dockerwatch-server.pem")},
                {keyfile, filename:join(CertsDir, "dockerwatch-server.key")}],
-              cowboy_protocol,
-              [{env, [{dispatch, Dispatch}]}]),
+              cowboy_tls,
+              #{env=>#{dispatch=>Dispatch}}),
 
     HTTP = ranch:child_spec(
              cowboy_http, 100, ranch_tcp,
              [{port, 8080}],
-             cowboy_protocol,
-             [{env, [{dispatch, Dispatch}]}]),
+             cowboy_clear,
+             #{env=>#{dispatch=>Dispatch}}),
 
     Counter = {dockerwatch, {dockerwatch, start_link, []},
                permanent, 5000, worker, [dockerwatch]},

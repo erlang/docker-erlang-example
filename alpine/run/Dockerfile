@@ -1,4 +1,6 @@
-FROM alpine:3.3
+FROM alpine:3.8
+
+RUN apk add --no-cache openssl-dev
 
 # Install the released application
 COPY artifacts/dockerwatch /dockerwatch

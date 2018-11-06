@@ -8,7 +8,7 @@
 
 -module(dockerwatch_handler).
 
--export([init/3]).
+-export([init/2]).
 -export([allowed_methods/2]).
 -export([content_types_accepted/2]).
 -export([content_types_provided/2]).
@@ -17,8 +17,8 @@
 -export([to_json/2]).
 -export([to_text/2]).
 
-init(_Transport, _Req, []) ->
-    {upgrade, protocol, cowboy_rest}.
+init(Req, []) ->
+    {cowboy_rest, Req, []}.
 
 %% Which HTTP methods are allowed
 allowed_methods(Req, State) ->
@@ -32,12 +32,12 @@ content_types_accepted(Req, State) ->
 %% Handle the POST/PUT request
 handle_post(Req, State) ->
     case cowboy_req:binding(counter_name, Req) of
-        {undefined, Req2} ->
-            {false, Req2, State};
-        {Name, Req2} ->
-            case cowboy_req:has_body(Req2) of
+        undefined ->
+            {false, Req, State};
+        Name ->
+            case cowboy_req:has_body(Req) of
                 true ->
-                    {ok, Body, Req3} = cowboy_req:body(Req2),
+                    {ok, Body, Req3} = cowboy_req:read_body(Req),
                     Json = jsone:decode(Body),
                     ActionBin = maps:get(<<"action">>, Json, <<"increment">>),
                     Value = maps:get(<<"value">>, Json, 1),
@@ -46,7 +46,7 @@ handle_post(Req, State) ->
                     {true, Req3, State};
                 false ->
                     ok = dockerwatch:create(Name),
-                    {true, Req2, State}
+                    {true, Req, State}
             end
     end.
 
@@ -61,9 +61,9 @@ content_types_provided(Req, State) ->
 %% Return counters/counter as json
 to_json(Req, State) ->
     Resp = case cowboy_req:binding(counter_name, Req) of
-               {undefined, _Req2} ->
+               undefined ->
                    dockerwatch:all();
-               {Counter, _Req2} ->
+               Counter ->
                    #{ Counter => dockerwatch:get(Counter) }
            end,
     {jsone:encode(Resp), Req, State}.
@@ -71,9 +71,9 @@ to_json(Req, State) ->
 %% Return counters/counter as plain text
 to_text(Req, State) ->
     Resp = case cowboy_req:binding(counter_name, Req) of
-               {undefined, _Req2} ->
+               undefined ->
                    [io_lib:format("~s~n",[Counter]) || Counter <- dockerwatch:all()];
-               {Counter, _Req2} ->
+               Counter ->
                    io_lib:format("~p",[dockerwatch:get(Counter)])
            end,
     {Resp, Req, State}.
@@ -81,12 +81,12 @@ to_text(Req, State) ->
 %% Return counters/counter as html
 to_html(Req, State) ->
     Body = case cowboy_req:binding(counter_name, Req) of
-               {undefined, _Req2} ->
+               undefined ->
                    Counters = dockerwatch:all(),
                    ["<ul>\n",
                     [io_lib:format("<li>~s</li>\n", [Counter]) || Counter <- Counters],
                     "</ul>\n"];
-               {Counter, _Req2} ->
+               Counter ->
                    Value = dockerwatch:get(Counter),
                    io_lib:format("~s = ~p",[Counter, Value])
            end,
