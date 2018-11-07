@@ -1,34 +1,13 @@
 ## Using Alpine Linux
 
-For simplicity use the included script to do all the steps below
+In this example we create a docker image containing a small Erlang
+application.
 
-    $ ./create-image
-
-#### 1. Build an image with an Erlang development environment
+We use the following Dockerfile, containing two build stages:
 
 ```Dockerfile
-FROM alpine:3.3
-
-# Download the Erlang/OTP source
-RUN mkdir /buildroot
-WORKDIR /buildroot
-ADD https://github.com/erlang/otp/archive/OTP-19.2.tar.gz .
-RUN tar zxf OTP-19.2.tar.gz
-
-# Install additional packages
-RUN apk add --no-cache autoconf && \
-    apk add --no-cache alpine-sdk && \
-    apk add --no-cache openssl-dev
-
-# Build Erlang/OTP
-WORKDIR otp-OTP-19.2
-RUN ./otp_build autoconf && \
-    CFLAGS="-Os" ./configure --prefix=/buildroot/erlang/19.2 --without-termcap --disable-hipe && \
-    make -j10
-
-# Install Erlang/OTP
-RUN mkdir -p /buildroot/erlang/19.2 && \
-    make install
+# Build stage 0
+FROM erlang:alpine
 
 # Install Rebar3
 RUN mkdir -p /buildroot/rebar3/bin
@@ -36,7 +15,7 @@ ADD https://s3.amazonaws.com/rebar3/rebar3 /buildroot/rebar3/bin/rebar3
 RUN chmod a+x /buildroot/rebar3/bin/rebar3
 
 # Setup Environment
-ENV PATH=/buildroot/erlang/19.2/bin:/buildroot/rebar3/bin:$PATH
+ENV PATH=/buildroot/rebar3/bin:$PATH
 
 # Reset working directory
 WORKDIR /buildroot
@@ -44,22 +23,56 @@ WORKDIR /buildroot
 # Copy our Erlang test application
 COPY dockerwatch dockerwatch
 
+# And build the release
 WORKDIR dockerwatch
+RUN rebar3 as prod release
 
-CMD rebar3 as prod release -o /artifacts
+
+# Build stage 1
+FROM alpine
+
+# Install some libs
+RUN apk add --no-cache openssl && \
+    apk add --no-cache ncurses-libs
+
+# Install the released application
+COPY --from=0 /buildroot/dockerwatch/_build/prod/rel/dockerwatch /dockerwatch
+
+# Expose relevant ports
+EXPOSE 8080
+EXPOSE 8443
+
+CMD ["/dockerwatch/bin/dockerwatch", "foreground"]
 ```
-    $ docker build -t build_erlang-dockerwatch --file=alpine/build/Dockerfile .
 
-#### 2. Build and release the Erlang application to an exported Volume
+The image is built with the following command:
 
-    $ docker run --rm --volume="$PWD/alpine/run/artifacts:/artifacts" build_erlang-dockerwatch
+    $ docker build -t erlang-dockerwatch .
 
-This releases our Erlang application using rebar3 and the following rebar.config.
+Notice that if you need a proxy to access the internet, you must
+forward your proxy settings to docker, for example by giving the option
+`--build-arg https_proxy=$HTTP_PROXY` to `docker build`.
+
+This is what happens:
+
+#### 1. Build stage 0: build
+
+This step starts from the official erlang docker image based on alpine
+linux. So with the base image, a full Erlang/OTP installation already
+exists.
+
+To be able to build our Erlang application, we now install rebar3.
+
+Our Erlang application is found in the `dockerwatch` directory on our
+local filesystem, and we use the `COPY` command to import this
+complete directory into the current working directory in the image.
+
+Finally, we release our erlang application using rebar3 and the
+following rebar.config.
 
 ```erlang
-{deps, [{lager,  "3.2.4"},   %% Logging
-        {jsone,  "1.4.2"},   %% JSON Encode/Decode
-        {cowboy, "1.1.2"}]}. %% HTTP Server
+{deps, [{jsone,  "1.4.7"},   %% JSON Encode/Decode
+        {cowboy, "2.5.0"}]}. %% HTTP Server
 
 {relx, [{release, {"dockerwatch", "1.0.0"}, [dockerwatch]},
         {vm_args, "config/vm.args"},
@@ -75,68 +88,30 @@ This releases our Erlang application using rebar3 and the following rebar.config
            ]}.
 ```
 
-The release is stored on our local filesystem under `alpine/run/artifacts`.
-It includes an Erlang runtime as well as our dockerwatch application and all its dependencies.
+#### 2. Build stage 1: create a minimal docker image
 
-    $ tree -L 3 alpine/run/artifacts/
-    alpine/run/artifacts/
-    └── dockerwatch
-        ├── bin
-        │   ├── dockerwatch
-        │   ├── dockerwatch-1.0.0
-        │   ├── install_upgrade.escript
-        │   ├── nodetool
-        │   └── start_clean.boot
-        ├── erts-8.2
-        │   ├── bin
-        │   ├── doc
-        │   ├── include
-        │   ├── lib
-        │   └── man
-        ├── lib
-        │   ├── asn1-4.0.4
-        │   ├── compiler-7.0.3
-        │   ├── cowboy-1.1.2
-        │   ├── cowlib-1.0.2
-        │   ├── crypto-3.7.2
-        │   ├── dockerwatch-1.0.0
-        │   ├── goldrush-0.1.9
-        │   ├── jsone-1.4.2
-        │   ├── kernel-5.1.1
-        │   ├── lager-3.2.4
-        │   ├── public_key-1.3
-        │   ├── ranch-1.3.2
-        │   ├── ssl-8.1
-        │   ├── stdlib-3.2
-        │   └── syntax_tools-2.1.1
-        └── releases
-            ├── 1.0.0
-            ├── RELEASES
-            └── start_erl.data
+Now that our application is released, we can discard all extras that
+was needed for compilation. That is, we no longer need rebar3 or the
+full Erlang/OTP installation, since our release already contains the
+required parts of Erlang/OTP, including the runtime system. So, we
+start a new build stage from the apline linux docker image.
 
-#### 3. Build an image with an Erlang runtime environment and your application
+Using the `COPY` command with option `--from=0`, we specify that we
+want to copy artifacts from build stage 0 into the current build
+stage. We use this to copy our released Erlang application into the
+final image.
 
-```Dockerfile
-FROM alpine:3.3
+We expose the relevant ports (needed by our application), and specify
+the command to execute when running the image.
 
-# Install the released application
-COPY artifacts/dockerwatch /dockerwatch
 
-# Expose relevant ports
-EXPOSE 8080
-EXPOSE 8443
 
-CMD ["/dockerwatch/bin/dockerwatch", "foreground"]
-```
-
-    $ docker build -t erlang-dockerwatch alpine/run/
-
-What happened?
+## What happened?
 
     $ docker images
-    REPOSITORY                 TAG                 IMAGE ID            CREATED             SIZE
-    erlang-dockerwatch         latest              ca683d321e7e        6 minutes ago       21.8 MB
-    build_erlang-dockerwatch   latest              8059ec18fa6e        19 minutes ago      617 MB
+	REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+	erlang-dockerwatch   latest              fcdd1aaa2ee7        16 seconds ago      26MB
+	<none>               <none>              c36b2d950fae        21 seconds ago      106MB
 
 
 ## Generating Certificate
@@ -161,21 +136,19 @@ Let's parse some of the input.
    the container.
  * `--log-driver=syslog`, will log all data from stdout in the container to our local syslog.
 
-Output in syslog.
+In /var/log/syslog we can see these entries:
 
-    $ tail -n10 /var/log/syslog
-    Feb 21 11:55:17 elxd1168lx9 kernel: [692274.686524] docker0: port 1(vethb1adc6d) entered forwarding state
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: Exec: /dockerwatch/erts-8.2/bin/erlexec -noshell -noinput +Bd -boot /dockerwatch/releases/1.0.0/dockerwatch -mode embedded -boot_var ERTS_LIB_DIR /dockerwatch/lib -config /dockerwatch/releases/1.0.0/sys.config -args_file /dockerwatch/releases/1.0.0/vm.args -pa -- foreground
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: Root: /dockerwatch
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: /dockerwatch
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: 10:55:17.463 [info] Application lager started on node dockerwatch@870f979c5b4c#015
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: 10:55:17.464 [info] Application ranch started on node dockerwatch@870f979c5b4c#015
-    Feb 21 11:55:17 elxd1168lx9 870f979c5b4c[3837]: 10:55:17.464 [info] Application cowboy started on node dockerwatch@870f979c5b4c#015
-    ...
+	Nov  7 14:55:42 elxa19vlx02 NetworkManager[1738]: <info>  [1541598942.5025] device (veth2644103): link connected
+	Nov  7 14:55:42 elxa19vlx02 NetworkManager[1738]: <info>  [1541598942.5026] device (docker0): link connected
+	Nov  7 14:55:43 elxa19vlx02 da217065cb2d[1334]: Exec: /dockerwatch/erts-10.1.1/bin/erlexec -noshell -noinput +Bd -boot /dockerwatch/releases/1.0.0/dockerwatch -mode embedded -boot_var ERTS_LIB_DIR /dockerwatch/lib -config /dockerwatch/releases/1.0.0/sys.config -args_file /dockerwatch/releases/1.0.0/vm.args -pa -- foreground
+	Nov  7 14:55:43 elxa19vlx02 da217065cb2d[1334]: Root: /dockerwatch
+	Nov  7 14:55:43 elxa19vlx02 da217065cb2d[1334]: /dockerwatch
+
+And here is our docker container:
 
     $ docker ps
-    CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                    NAMES
-    870f979c5b4c        erlang-dockerwatch   "/dockerwatch/bin/..."   About a minute ago   Up About a minute  0.0.0.0:8443->8443/tcp   mystifying_thompson
+	CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                              NAMES
+	da217065cb2d        erlang-dockerwatch   "/dockerwatch/bin/do…"   3 minutes ago       Up 2 minutes        8080/tcp, 0.0.0.0:8443->8443/tcp   nifty_heisenberg
 
 Fetch container IP Address from container id:
 
