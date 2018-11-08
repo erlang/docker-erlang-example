@@ -148,7 +148,7 @@ And here is our docker container:
 
     $ docker ps
 	CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                              NAMES
-	da217065cb2d        erlang-dockerwatch   "/dockerwatch/bin/do…"   3 minutes ago       Up 2 minutes        8080/tcp, 0.0.0.0:8443->8443/tcp   nifty_heisenberg
+	870f979c5b4c        erlang-dockerwatch   "/dockerwatch/bin/do…"   3 minutes ago       Up 2 minutes        8080/tcp, 0.0.0.0:8443->8443/tcp   nifty_heisenberg
 
 Fetch container IP Address from container id:
 
