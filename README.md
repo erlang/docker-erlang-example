@@ -124,19 +124,20 @@ For some more details of what this command does, see [README-CERTS.md](README-CE
 
 ## Running the Erlang Application
 
-We start the image in docker container by issuing the following command.
+We start the image in a docker container by issuing the following command.
 
     $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=syslog erlang-dockerwatch
     870f979c5b4cdb7a1ba930b020043f50fa7457bf787237706fb27eefaf5fe61d
 
 Let's parse some of the input.
 
- * `-p 8443:8443`, exposes port `8443` from the container to our localhost
- * `--volume="$PWD/ssl:/etc/ssl/certs"`, mounts our local directory with certificates in
-   the container.
+ * `-d`, starts the container in the background and prints the container ID.
+ * `-p 8443:8443`, exposes port `8443` from the container to our localhost.
+ * `--volume="$PWD/ssl:/etc/ssl/certs"`, mounts our local directory
+   (`$PWD/ssl`) with certificates to `/etc/ssl/certs` the container.
  * `--log-driver=syslog`, will log all data from stdout in the container to our local syslog.
 
-In /var/log/syslog we can see these entries:
+In `/var/log/syslog` we can see these entries:
 
 	Nov  7 14:55:42 elxa19vlx02 NetworkManager[1738]: <info>  [1541598942.5025] device (veth2644103): link connected
 	Nov  7 14:55:42 elxa19vlx02 NetworkManager[1738]: <info>  [1541598942.5026] device (docker0): link connected
