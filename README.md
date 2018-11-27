@@ -3,6 +3,8 @@
 In this example we create a docker image containing a small Erlang
 application.
 
+For more complex examples, a number of links can be found [here](http://github.com/erlang/docker-erlang-example/tree/minikube-simple/).
+
 We use the following Dockerfile, containing two build stages:
 
 ```Dockerfile
