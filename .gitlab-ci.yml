@@ -1,0 +1,49 @@
+stages:
+  - build
+  - test
+  - container
+
+before_script:
+  - apk update
+  - apk --no-cache upgrade
+  - apk --no-cache add git
+  - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/".insteadOf 'git@gitlab.com:'
+
+build:
+  stage: build
+  image: erlang:alpine
+  artifacts:
+    untracked: true
+    paths:
+      - _build
+  script:
+    # Prepare environmental variables
+    - wget https://s3.amazonaws.com/rebar3/rebar3 && chmod a+x rebar3
+    - ./rebar3 compile
+
+check:
+  stage: test
+  image: erlang:alpine
+  dependencies:
+    - build
+  artifacts:
+    when: always
+    untracked: true
+    paths:
+      - _build
+  script:
+    - ./rebar3 do xref, ct
+
+docker:
+  image: docker:git
+  stage: container
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -f Dockerfile .
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - if [ $CI_COMMIT_REF_NAME == "master" ] ; then docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest ; docker push $CI_REGISTRY_IMAGE:latest ; fi
+  when: always
