@@ -1,9 +1,17 @@
-## Using Alpine Linux
+# About
+
+This file contains a step-by-step guide that demonstrates how one can
+create a compact docker image containing a small service written in
+Erlang. More complex docker examples can be found in the
+[advanced_examples](advanced_examples) folder.
+
+
+## Create a Docker Image Using Alpine Linux
 
 In this example we create a docker image containing a small Erlang
 application.
 
-For more complex examples, a number of links can be found [here](http://github.com/erlang/docker-erlang-example/tree/minikube-simple/).
+
 
 We use the following Dockerfile, containing two build stages:
 
