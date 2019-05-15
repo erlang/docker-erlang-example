@@ -113,8 +113,16 @@ the command to execute when running the image.
     $ docker images
 	REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
 	erlang-dockerwatch   latest              fcdd1aaa2ee7        16 seconds ago      26MB
-	<none>               <none>              c36b2d950fae        21 seconds ago      106MB
+        ...
 
+The final docker image for the application has a size of approximately
+26MB. It may be useful to know that one can get down the image size
+for this application even further (to approximately 13MB) by using
+some tricks (e.g., compiling the Erlang release without the ncurses
+library, stripping away debug symbols from binaries and compressing
+applications). An alternative docker file, which is named
+[Dockerfile.very_small_image](Dockerfile.very_small_image), illustrates
+how this can be done.
 
 ## Generating Certificate
 
