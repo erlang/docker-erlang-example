@@ -1,0 +1,33 @@
+version: "2"
+services:
+  dockerwatch:
+    build: .
+    image: dockerwatch
+    ports:
+      - "8443:8443"
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://localhost:44622"
+    volumes:
+      - "./ssl:/etc/ssl/certs"
+  logstash:
+    image: docker.elastic.co/logstash/logstash:6.4.3
+    ports:
+      - "44622:44622/udp"
+      - "9600:9600"
+    volumes:
+      - "./logstash/logstash.yml:/usr/share/logstash/config/logstash.yml"
+      - "./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
+    ports:
+      - "9200:9200"
+    volumes:
+      - "./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.4.3
+    ports:
+      - "5601:5601"
+    volumes:
+      - "./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml"
