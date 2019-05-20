@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  ## Name and labels of the Deployment
+  labels:
+    app: dockerwatch
+  name: dockerwatch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dockerwatch
+  template:
+    metadata:
+      labels:
+        app: dockerwatch
+    spec:
+      containers:
+      ## The container to launch
+      - image: dockerwatch
+        name: dockerwatch
+        imagePullPolicy: Never ## Set to Never as we built the image in the cluster
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8443
+          protocol: TCP
+        volumeMounts:
+            - name: kube-keypair
+              readOnly: true
+              mountPath: /etc/ssl/certs
+      volumes:
+        - name: kube-keypair
+          secret:
+            secretName: dockerwatch
