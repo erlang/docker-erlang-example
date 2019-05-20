@@ -1,5 +1,6 @@
 # About
 
+
 This file contains a step-by-step guide that demonstrates how one can
 create a compact docker image containing a small service written in
 Erlang. More complex docker examples can be found in the

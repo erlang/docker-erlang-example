@@ -1,0 +1,59 @@
+sudo: required
+
+env:
+- CHANGE_MINIKUBE_NONE_USER=true
+
+matrix:
+  include:
+    - env: elk
+      addons:
+        apt:
+          packages:
+            - curl
+            - jq
+      script:
+        - cd ./advanced_examples/elk
+        - ./.travis.sh
+
+
+    - env: logstash
+      addons:
+        apt:
+          packages:
+            - curl
+      script:
+        - cd ./advanced_examples/logstash
+        - ./.travis.sh
+
+
+    - env: minikubedist
+      dist: xenial
+      addons:
+        apt:
+          packages:
+            - curl
+      script:
+        - cd ./advanced_examples/minikube-dist
+        - ./.travis.sh
+
+
+    - env: minikubepromgraf
+      dist: xenial
+      addons:
+        apt:
+          packages:
+            - curl
+      script:
+        - cd ./advanced_examples/minikube-prom-graf
+        - ./.travis.sh
+
+
+    - env: minikubesimple
+      dist: xenial
+      addons:
+        apt:
+          packages:
+            - curl
+      script:
+        - cd ./advanced_examples/minikube-simple
+        - ./.travis.sh
