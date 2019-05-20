@@ -1,0 +1,4 @@
+-name dockerwatch@backend.default.svc.cluster.local
+-setcookie dockerwatch
+-start_epmd false
+-epmd_module epmd_static

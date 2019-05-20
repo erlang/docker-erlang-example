@@ -1,0 +1,4 @@
+-name dockerwatch@${IP}
+-setcookie dockerwatch
+-start_epmd false
+-epmd_module epmd_static

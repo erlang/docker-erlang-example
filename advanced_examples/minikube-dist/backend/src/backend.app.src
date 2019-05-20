@@ -1,0 +1,14 @@
+%% Feel free to use, reuse and abuse the code in this file.
+
+{application, backend, [
+	{description, "Mnesia node."},
+	{vsn, "1.0.0"},
+	{modules, []},
+	{registered, [backend_sup]},
+	{applications, [kernel,
+                        stdlib,
+                        mnesia
+	]},
+	{mod, {backend_app, []}},
+	{env, []}
+]}.
