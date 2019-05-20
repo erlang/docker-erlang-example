@@ -1,0 +1,19 @@
+%% Feel free to use, reuse and abuse the code in this file.
+
+{application, dockerwatch, [
+	{description, "Cowboy REST Hello World example."},
+	{vsn, "1.0.0"},
+	{modules, []},
+	{registered, [dockerwatch_sup]},
+	{applications, [
+		kernel,
+		stdlib,
+                jsone,
+		cowboy,
+                prometheus,
+                prometheus_process_collector,
+                prometheus_cowboy
+	]},
+	{mod, {dockerwatch_app, []}},
+	{env, []}
+]}.
