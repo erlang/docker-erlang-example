@@ -7,16 +7,6 @@ node.
 This is only meant to be an example of how to get started. It is not the only,
 nor neccesarily the best way to setup minikube with Erlang.
 
-# Other Demos
-
-* [Using Docker](http://github.com/erlang/docker-erlang-example/)
-* [Using Docker: Logstash](http://github.com/erlang/docker-erlang-example/tree/logstash)
-* [Using Docker Compose: Logstash/ElasticSearch/Kibana](http://github.com/erlang/docker-erlang-example/tree/elk)
-* [Using Minikube: Simple](http://github.com/erlang/docker-erlang-example/tree/minikube-simple)
-* [Using Minikube: Prometheus/Grafana](http://github.com/erlang/docker-erlang-example/tree/minikube-prom-graf)
-* [Using Minikube: Distributed Erlang](http://github.com/erlang/docker-erlang-example/tree/minikube-dist)
-* [Using Minikube: Encrypted Distributed Erlang](http://github.com/erlang/docker-erlang-example/tree/minikube-tls-dist)
-
 # Prerequisites
 
 To start with you should familiarize yourself with minikube through this guide:
@@ -53,11 +43,11 @@ First however, make sure that the minikube cluster is started:
 
     > minikube start
 
-and that you have cloned this repo and checked out this branch:
+and that you have cloned this repo and changed to the correct
+directory:
 
     > git clone https://github.com/erlang/docker-erlang-example
-    > cd docker-erlang-example
-    > git checkout minikube-simple
+    > cd docker-erlang-example/advanced_examples/minikube-simple
 
 ## Create a Service
 

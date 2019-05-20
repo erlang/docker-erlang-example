@@ -1,7 +1,9 @@
-# Examples
+* [Default Example](../README.md)
 
-* [Using Docker](http://github.com/erlang/docker-erlang-example/)
-* [Using Docker: Logstash](http://github.com/erlang/docker-erlang-example/tree/logstash)
-* [Using Docker Compose: Logstash/ElasticSearch/Kibana](http://github.com/erlang/docker-erlang-example/tree/elk)
-* [Using Minikube: Simple](http://github.com/erlang/docker-erlang-example/tree/minikube-simple)
-* [Using Minikube: Prometheus/Grafana](http://github.com/erlang/docker-erlang-example/tree/minikube-prom-graf)
+# Advanced Examples
+
+* [Using Docker: Logstash](logstash/README.md)
+* [Using Docker Compose: Logstash/ElasticSearch/Kibana](elk/README.md)
+* [Using Minikube: Simple](minikube-simple/README.md)
+* [Using Minikube: Prometheus/Grafana](minikube-prom-graf/README.md)
+* [Using Minikube: Distributed Erlang](minikube-dist/README.md)
