@@ -21,7 +21,7 @@ We use the following Dockerfile, containing two build stages:
 FROM erlang:alpine
 
 # Set working directory
-RUN mkdir -p /buildroot/rebar3/bin
+RUN mkdir /buildroot
 WORKDIR /buildroot
 
 # Copy our Erlang test application
@@ -30,7 +30,6 @@ COPY dockerwatch dockerwatch
 # And build the release
 WORKDIR dockerwatch
 RUN rebar3 as prod release
-
 
 # Build stage 1
 FROM alpine
@@ -62,10 +61,8 @@ This is what happens:
 #### 1. Build stage 0: build
 
 This step starts from the official erlang docker image based on alpine
-linux. So with the base image, a full Erlang/OTP installation already
-exists.
-
-To be able to build our Erlang application, we now install rebar3.
+linux. So with the base image, a full Erlang/OTP installation and rebar3
+already exists.
 
 Our Erlang application is found in the `dockerwatch` directory on our
 local filesystem, and we use the `COPY` command to import this

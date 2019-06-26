@@ -5,15 +5,8 @@ FROM erlang:alpine
 RUN apk add --no-cache g++ && \
     apk add --no-cache make
 
-# Install Rebar3
-RUN mkdir -p /buildroot/rebar3/bin
-ADD https://s3.amazonaws.com/rebar3/rebar3 /buildroot/rebar3/bin/rebar3
-RUN chmod a+x /buildroot/rebar3/bin/rebar3
-
-# Setup Environment
-ENV PATH=/buildroot/rebar3/bin:$PATH
-
 # Reset working directory
+RUN mkdir /buildroot
 WORKDIR /buildroot
 
 # Copy our Erlang test application

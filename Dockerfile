@@ -2,7 +2,7 @@
 FROM erlang:alpine
 
 # Set working directory
-RUN mkdir -p /buildroot/rebar3/bin
+RUN mkdir /buildroot
 WORKDIR /buildroot
 
 # Copy our Erlang test application
