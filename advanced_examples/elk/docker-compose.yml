@@ -3,6 +3,7 @@ services:
   dockerwatch:
     build: .
     image: dockerwatch
+    init: true
     ports:
       - "8443:8443"
     logging:

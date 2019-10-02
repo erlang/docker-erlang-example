@@ -135,13 +135,14 @@ For some more details of what this command does, see [README-CERTS.md](README-CE
 
 We start the image in a docker container by issuing the following command.
 
-    $ docker run -d -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=syslog erlang-dockerwatch
+    $ docker run -d -p 8443:8443 --init --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=syslog erlang-dockerwatch
     870f979c5b4cdb7a1ba930b020043f50fa7457bf787237706fb27eefaf5fe61d
 
 Let's parse some of the input.
 
  * `-d`, starts the container in the background and prints the container ID.
  * `-p 8443:8443`, exposes port `8443` from the container to our localhost.
+ * `--init`, use the tini initialization as PID 1 in order to prevent zombie processes.
  * `--volume="$PWD/ssl:/etc/ssl/certs"`, mounts our local directory
    (`$PWD/ssl`) with certificates to `/etc/ssl/certs` the container.
  * `--log-driver=syslog`, will log all data from stdout in the container to our local syslog.
