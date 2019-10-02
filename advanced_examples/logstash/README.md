@@ -57,7 +57,7 @@ To forward log events (single line printouts to STDOUT) from the
 docker-erlang-example image into the Logstash container, use the
 `gelf` log driver and specify the UDP port number, for example:
 
-	docker run -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=gelf --log-opt gelf-address=udp://0.0.0.0:44622 dockerwatch
+	docker run -p 8443:8443 --init --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=gelf --log-opt gelf-address=udp://0.0.0.0:44622 dockerwatch
 
 In general, a single line printout from Erlang's Logger can for
 instance be:

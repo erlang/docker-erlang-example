@@ -1,8 +1,9 @@
-version: "2"
+version: "3.7"
 services:
   dockerwatch:
     build: .
     image: dockerwatch
+    init: true
     ports:
       - "8443:8443"
     logging:

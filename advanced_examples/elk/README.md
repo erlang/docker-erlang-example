@@ -84,6 +84,7 @@ services:
   dockerwatch:
     build: .
     image: dockerwatch
+    init: true
     ports:
       - "8443:8443"
     logging:
@@ -181,4 +182,4 @@ Start Kibana (configuration found in kibana/config/kibana.yml, $ELASTICSEACH_URL
 
 Start dockerwatch application
 
-	docker run -p 8443:8443 --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=gelf --log-opt gelf-address=udp://0.0.0.0:44622 dockerwatch
+	docker run -p 8443:8443 --init --volume="$PWD/ssl:/etc/ssl/certs" --log-driver=gelf --log-opt gelf-address=udp://0.0.0.0:44622 dockerwatch
