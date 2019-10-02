@@ -8,7 +8,7 @@ This example runs four docker containers:
 - kibana (analytics and visualization platform, web interface)
 
 As in the
-[Logstash example](http://github.com/erlang/docker-erlang-example/tree/logstash),
+[Logstash example](https://github.com/erlang/docker-erlang-example/tree/master/advanced_examples/logstash),
 the dockerwatch container is started with a logging driver that sends
 everything printed on standard out on to a UDP port in the logstash
 container. Logstash forwards each log event over http to the
@@ -120,7 +120,7 @@ services:
 
 The Logstash pipeline configuration is specified in
 `logstash/pipeline/logstash.conf`. This is the same as in the
-[Logstash example](http://github.com/erlang/docker-erlang-example/tree/logstash),
+[Logstash example](https://github.com/erlang/docker-erlang-example/tree/master/advanced_examples/logstash),
 except it has the additional `elasticsearch` output plugin.
 
 

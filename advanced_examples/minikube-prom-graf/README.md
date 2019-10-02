@@ -4,7 +4,7 @@ This is a quick demo of using minikube to run an Erlang node with prometheus and
 The example we will use is the
 [Docker Watch](http://github.com/erlang/docker-erlang-example/tree/master) node.
 This demo assumes that you have done the
-[Using Minikube](http://github.com/erlang/docker-erlang-example/tree/minikube-simple) demo.
+[Using Minikube](https://github.com/erlang/docker-erlang-example/tree/master/advanced_examples/minikube-simple) demo.
 
 This is only meant to be an example of how to get started. It is not the only,
 nor neccesarily the best way to setup minikube with Erlang.
@@ -117,7 +117,7 @@ You can view the entire new supervisor module [here](dockerwatch/src/dockerwatch
 ## Deploy Dockerwatch
 
 Now we should deploy the dockerwatch service almost the same way as was done in
-[Using Minikube: Simple](http://github.com/erlang/docker-erlang-example/tree/minikube-simple).
+[Using Minikube: Simple](https://github.com/erlang/docker-erlang-example/tree/master/advanced_examples/minikube-simple).
 So:
 
 ```

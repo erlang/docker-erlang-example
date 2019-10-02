@@ -241,7 +241,7 @@ EOF
 
 ## Testing
 
-We can then test the API using the same curl commands as the [simple demo](http://github.com/erlang/docker-erlang-example/tree/minikube-simple):
+We can then test the API using the same curl commands as the [simple demo](https://github.com/erlang/docker-erlang-example/tree/master/advanced_examples/minikube-simple):
 
 ```
 > curl -H "Content-Type: application/json" -X POST -d "" $(minikube service dockerwatch --url | head -1)/cnt
