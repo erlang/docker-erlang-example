@@ -75,7 +75,7 @@ following rebar.config.
 {deps, [{jsone,  "1.4.7"},   %% JSON Encode/Decode
         {cowboy, "2.5.0"}]}. %% HTTP Server
 
-{relx, [{release, {"dockerwatch", "1.0.0"}, [dockerwatch]},
+{relx, [{release, {dockerwatch, "1.0.0"}, [dockerwatch]},
         {vm_args, "config/vm.args"},
         {sys_config, "config/sys.config"},
         {dev_mode, true},
