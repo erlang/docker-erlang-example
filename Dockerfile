@@ -1,6 +1,9 @@
 # Build stage 0
 FROM erlang:24-alpine
 
+# Install Git if necessary
+RUN apk add git
+
 # Set working directory
 RUN mkdir /buildroot
 WORKDIR /buildroot
