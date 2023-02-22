@@ -20,6 +20,9 @@ We use the following Dockerfile, containing two build stages:
 # Build stage 0
 FROM erlang:alpine
 
+# Install Git if necessary
+RUN apk add git
+
 # Set working directory
 RUN mkdir /buildroot
 WORKDIR /buildroot
